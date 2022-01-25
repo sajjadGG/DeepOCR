@@ -39,26 +39,24 @@ def load_image(train_data_path):
     return train, label
 
 
-def preprocess(img):
+def preprocess(img, shape=(400, 100)):
     img = ImageOps.grayscale(img)
     img = np.array(img)
     (h, w) = img.shape
-    final_img = np.ones([100, 400]) * 255  # blank white image
+    final_img = np.ones([shape[1], shape[0]]) * 255  # blank white image
 
     # crop
-    if w > 400:
-        img = img[:, :400]
-    if h > 100:
-        img = img[:100, :]
+    if w > shape[0]:
+        img = img[:, : shape[0]]
+    if h > shape[1]:
+        img = img[: shape[1], :]
 
     final_img[:h, :w] = img
     return cv2.rotate(final_img, cv2.ROTATE_90_CLOCKWISE)
 
 
-def preprocess_image(img):
-    return cv2.rotate(
-        np.array(img.resize((400, 100)).convert("L")), cv2.ROTATE_90_CLOCKWISE
-    )
+def preprocess_image(img, shape=(400, 100)):
+    return cv2.rotate(np.array(img.resize(shape).convert("L")), cv2.ROTATE_90_CLOCKWISE)
 
 
 def preprocess_train(data, shape=(400, 100)):
@@ -228,7 +226,8 @@ def train_card_model(train_data_path, epochs=40, batch_size=128, save_dir="model
 
 
 def preprocess_category(img):
-    pass
+    img_pre = np.array(img.resize((400, 100)))[:, :, :3]
+    return img_pre.reshape(1, 400, 100, 3) / 255
 
 
 def preprocess_card(img):
@@ -237,10 +236,10 @@ def preprocess_card(img):
 
 
 def preprocess_national_id_new(img):
-    img_pre = preprocess_image(img)
-    return img_pre.reshape(1, 400, 100, 1)
+    img_pre = preprocess(img, shape=(256, 64))
+    return img_pre.reshape(1, 256, 64, 1) / 255
 
 
 def preprocess_national_id_old(img):
-    img_pre = preprocess_image(img)
-    return img_pre.reshape(1, 400, 100, 1)
+    img_pre = preprocess_image(img, shape=(64, 256))
+    return img_pre.reshape(1, 64, 256, 1)

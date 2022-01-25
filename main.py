@@ -4,6 +4,7 @@ from PIL import ImageOps, Image
 import numpy as np
 from tensorflow.keras import backend as K
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from train import (
     preprocess_category,
     preprocess_card,
@@ -37,6 +38,7 @@ def predict(
     card_model_path,
     national_id_new_model_path,
     national_id_old_model_path,
+    category,
 ):
     """predict image number
 
@@ -53,11 +55,12 @@ def predict(
     img = Image.open(image_path)
 
     # feed to category modl
-    img_cat = preprocess_category(img)
+    # img_cat = preprocess_category(img)
 
-    model_cat = load(category_model_path)
-    category = np.argmax(model_cat.predict(img_cat))
-
+    # model_cat = load(category_model_path)
+    # category = np.argmax(model_cat.predict(img_cat))
+    # category = 1
+    print("category is ", category)
     if category == 0:  # card
         model = load(card_model_path)
         img_pre = preprocess_card(img)
@@ -66,15 +69,21 @@ def predict(
     elif category == 1:  # new national id
         model = load(national_id_new_model_path)
         img_pre = preprocess_national_id_new(img)
+        print(national_id_new_model_path)
+        print(img_pre.shape)
+        plt.imshow(img_pre[0, :, :, 0])
+        plt.show()
+
         alphabet = u"۰۱۲۳۴۵۶۷۸۹"
-        concat = 16
+        # alphabet = u"0123456789"
+        concat = 10
 
     else:  # old national id
         model = load(national_id_old_model_path)
         img_pre = preprocess_national_id_old(img)
         alphabet = u"۰۱۲۳۴۵۶۷۸۹"
-        concat = 16
-
+        concat = 10
+    print(np.mean(img_pre))
     return infer(model, img_pre, alphabet, concat)
 
 
@@ -88,8 +97,16 @@ def predict_card(image_path, card_model_path):
     return infer(model, img_pre, alphabet, concat)
 
 
-a = predict_card(
-    "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\data\\data2.PNG",
-    "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\modelcard.h5",
-)
-print(a)
+# a = predict_card(
+#     "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\data\\data2.PNG",
+#     "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\modelcard.h5",
+# )
+for i in range(3, 8):
+    a = predict(
+        "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\data\\data{}.PNG".format(i),
+        "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\init_model.h5",
+        "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\modelcard.h5",
+        "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\model_new_national_card.h5",
+        "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\model_new_national_card.h5",
+    )
+    print("data {} is {}".format(i, a))
