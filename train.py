@@ -232,12 +232,15 @@ def preprocess_category(img):
 
 
 def preprocess_card(img):
-    pass
+    img_pre = preprocess_image(img)
+    return img_pre.reshape(1, 400, 100, 1)
 
 
 def preprocess_national_id_new(img):
-    pass
+    img_pre = preprocess_image(img)
+    return img_pre.reshape(1, 400, 100, 1)
 
 
 def preprocess_national_id_old(img):
-    pass
+    img_pre = preprocess_image(img)
+    return img_pre.reshape(1, 400, 100, 1)

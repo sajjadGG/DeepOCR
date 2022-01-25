@@ -17,7 +17,7 @@ def load(model_path):
     return model
 
 
-def infer(model, img_pre, alphabet):
+def infer(model, img_pre, alphabet, concat=16):
     preds = model.predict(img_pre)
     decoded = K.get_value(
         K.ctc_decode(
@@ -27,7 +27,7 @@ def infer(model, img_pre, alphabet):
         )[0][0]
     )
     prediction = num_to_label(decoded[0], alphabets=alphabet)
-    return prediction
+    return prediction[:concat]
 
 
 def predict(
@@ -49,14 +49,17 @@ def predict(
         model = load(card_model_path)
         img_pre = preprocess_card(img)
         alphabet = u"0123456789"
+        concat = 16
     elif category == 1:  # new national id
         model = load(national_id_new_model_path)
         img_pre = preprocess_national_id_new(img)
         alphabet = u"۰۱۲۳۴۵۶۷۸۹"
+        concat = 16
 
     else:  # old national id
         model = load(national_id_old_model_path)
         img_pre = preprocess_national_id_old(img)
         alphabet = u"۰۱۲۳۴۵۶۷۸۹"
+        concat = 16
 
-    return infer(model, img_pre, alphabet)
+    return infer(model, img_pre, alphabet, concat)
