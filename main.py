@@ -3,6 +3,7 @@ import cv2
 from PIL import ImageOps, Image
 import numpy as np
 from tensorflow.keras import backend as K
+import tensorflow as tf
 from train import (
     preprocess_category,
     preprocess_card,
@@ -13,7 +14,7 @@ from train import (
 
 
 def load(model_path):
-    model = keras.models.load_model(model_path)
+    model = tf.keras.models.load_model(model_path)
     return model
 
 
@@ -37,6 +38,18 @@ def predict(
     national_id_new_model_path,
     national_id_old_model_path,
 ):
+    """predict image number
+
+    Args:
+        image_path (str): image path
+        category_model_path (str): category model path
+        card_model_path (str): card model path
+        national_id_new_model_path (str): new national id model path
+        national_id_old_model_path (str): old national id model path
+
+    Returns:
+        [type]: [description]
+    """
     img = Image.open(image_path)
 
     # feed to category modl
@@ -63,3 +76,20 @@ def predict(
         concat = 16
 
     return infer(model, img_pre, alphabet, concat)
+
+
+def predict_card(image_path, card_model_path):
+    img = Image.open(image_path)
+    model = load(card_model_path)
+    img_pre = preprocess_card(img)
+    alphabet = u"0123456789"
+    concat = 16
+
+    return infer(model, img_pre, alphabet, concat)
+
+
+a = predict_card(
+    "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\data\\data2.PNG",
+    "C:\\Users\\Lion\\Documents\\Repos\\DeepOCR\\savedmodels\\modelcard.h5",
+)
+print(a)
